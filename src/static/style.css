@@ -1,0 +1,105 @@
+body{
+    font-family: Arial;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+.controls{
+    margin-bottom:20px;
+}
+
+.product{
+    border:1px solid #ccc;
+    padding:20px;
+    width:200px;
+}
+
+button{
+    padding:10px;
+    background:green;
+    color:white;
+    border:none;
+}
+
+button:hover{
+    background:#1a5fc2;
+}
+
+.hidden{
+    display:none;
+}
+
+dialog {
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #ccc;
+}
+
+.tablink {
+  padding: 10px 20px;
+  border: none;
+  background: #eee;
+  cursor: pointer;
+}
+
+.tablink:hover {
+  background: #ddd;
+}
+
+.tabcontent {
+  display: grid;
+  align-items: start;
+  padding: 20px;
+}
+
+.tabcontent.active {
+  display: block;
+}
+
+.table-scroll{
+    display: inline-block;
+    vertical-align: top;
+    width:auto;
+    max-height:200px; /* about 5 rows */
+    margin-bottom:20px;
+    overflow:auto;           /* enable scrolling */
+    border-collapse:collapse;
+    border-radius:6px;          /* rounded corners */
+    border:1px solid #ccc;      /* small border */
+}
+
+table{
+    background:white;           /* table background */
+    border-collapse:collapse;
+}
+
+
+th, td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+    text-align:left;
+}
+
+th{
+    position: sticky;
+    top: 0;
+    background:#2c7be5;
+    color:white;
+}
+
+tr:hover{
+    background:#f1f5ff;
+}

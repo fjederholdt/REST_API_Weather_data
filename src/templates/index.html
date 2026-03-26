@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Best Storage System Ever</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="tabs">
+    <button class="tablink" onclick="openTab('weather_dashboard')">Storage System</button>
+    <button class="tablink" onclick="openTab('database_viewer')">Database Viewer</button>
+</div>
+
+<div id="weather_dashboard" class="tabcontent">
+    <h1>Weather Dashbord</h1>
+    <p>Here you can see the data from the weather database.</p>
+
+    <div class="api-buttons">
+        <button onclick="getStations()">Get stations</button>
+        <button onclick="getMeasurementFromStation()">Get measurement from station</button>
+        <button onclick="getLatestMeasurements()">Get latest measurements from all stations</button>
+        <button onclick="compareMeasurementsFromStations()">Compare measurements across select stations</button>
+    </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+    function getStations() {
+        
+        fetch("/Stations").then(response => response.json()).then(data => {
+            const dashboard = document.getElementById("weather_dashboard");
+    
+            const oldTables = dashboard.querySelectorAll(".table-scroll");
+            oldTables.forEach(oldTable => {
+                oldTable.remove();
+            });
+            Object.entries(data).forEach(([station, sensors]) => {
+
+            // Container
+            const container = document.createElement("div");
+            container.className = "table-scroll";
+
+            const table = document.createElement("table");
+            const thead = document.createElement("thead");
+            const tbody = document.createElement("tbody");
+
+            // Header
+            const headerRow = document.createElement("tr");
+            const th = document.createElement("th");
+            th.textContent = station;
+            headerRow.appendChild(th);
+            thead.appendChild(headerRow);
+
+            // Stations
+            sensors.forEach(sensor => {
+
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+
+                td.textContent = sensor;
+
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            container.appendChild(table);
+
+            dashboard.appendChild(container);
+             });
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    window.getStations = getStations;
+    });
+    
+    document.addEventListener("DOMContentLoaded", () => {
+
+    function getMeasurementFromStation() {
+        const stationInput = prompt("Enter station name:");
+        const measurementType = prompt("Enter measurement type:");
+        const from = prompt("Enter from (YYYY-MM-DD):");
+        const to = prompt("Enter from (YYYY-MM-DD):");
+
+        if (stationInput && measurementType && from && to) {
+            const queryString = "?station=" + stationInput + "&type=" + measurementType + "&from=" + from + "&to=" + to;
+            fetch("/Measurements/"+queryString).then(response => response.json()).then(data => {
+                const dashboard = document.getElementById("weather_dashboard");
+                
+                const oldTables = dashboard.querySelectorAll(".table-scroll");
+                oldTables.forEach(oldTable => {
+                    oldTable.remove();
+                });
+
+                // Container
+                const container = document.createElement("div");
+                container.className = "table-scroll";
+
+                const table = document.createElement("table");
+                const thead = document.createElement("thead");
+                const tbody = document.createElement("tbody");
+
+                // Header
+                const headerRow = document.createElement("tr");
+                const th = document.createElement("th");
+                th.textContent = "Measurements";
+                headerRow.appendChild(th);
+                thead.appendChild(headerRow);
+
+                // Measurements
+                data.forEach(measurement => {
+
+                    const tr = document.createElement("tr");
+                    const td = document.createElement("td");
+
+                    td.textContent = measurement.Measurements;
+
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+
+                });
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                container.appendChild(table);
+                dashboard.appendChild(container);
+
+            }).catch(error => console.error("Error:", error));
+        }   
+    }
+    window.getMeasurementFromStation = getMeasurementFromStation;
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+    function getLatestMeasurements() {
+        fetch("/LatestMeasurements").then(response => response.json()).then(data => {
+            const dashboard = document.getElementById("weather_dashboard");
+
+            const oldTables = dashboard.querySelectorAll(".table-scroll");
+            oldTables.forEach(oldTable => {
+                oldTable.remove();
+            });
+
+            const container = document.createElement("div");
+            container.className = "table-scroll";
+
+            const table = document.createElement("table");
+            const thead = document.createElement("thead");
+            const tbody = document.createElement("tbody");
+
+            // Header
+            const headerRow = document.createElement("tr");
+            ["Station", "Humidity", "Pressure", "Temperature"].forEach(header => {
+                const th = document.createElement("th");
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            // Data rows
+            Object.entries(data).forEach(([station, measurements]) => {
+                const tr = document.createElement("tr");
+                const stationTd = document.createElement("td");
+                stationTd.textContent = station;
+                tr.appendChild(stationTd);
+
+                ["humidity", "pressure", "temperature"].forEach(key => {
+                    const td = document.createElement("td");
+                    td.textContent = measurements[key] ?? "N/A";
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            container.appendChild(table);
+            dashboard.appendChild(container);
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    window.getLatestMeasurements = getLatestMeasurements;
+    });
+
+    function compareMeasurementsFromStations() {
+
+    }
+    </script>
+</div>
+
+<div id="database_viewer" class="tabcontent">      
+</div>
+
+<script>
+    let table_names = {{tables | tojson}};
+
+    function openTab(tabId) {
+        
+        let contents = document.querySelectorAll(".tabcontent");
+        
+        contents.forEach(tab => {
+            tab.classList.remove("active");
+        });
+        
+        if (tabId === "database_viewer") {
+            const tableList = document.getElementById("database_viewer");
+            // Clear previous tables
+            tableList.innerHTML = "";
+            table_names.forEach(table => {
+                getTableData(table);
+            })
+        }
+        document.getElementById(tabId).classList.add("active");
+    }
+
+    async function getTableData(tableName) {
+        fetch("/"+tableName).then(response => response.json()).then(data => {
+
+            
+            const tableList = document.getElementById("database_viewer");
+
+            const container = document.createElement("div");
+            container.className = "table-scroll";
+            
+            // Create table
+            const table = document.createElement("table");
+            const thead = document.createElement("thead");
+            const tbody = document.createElement("tbody");
+            
+            // Create header
+            const headerRow = document.createElement("tr");
+            Object.keys(data[0]).forEach(key => {
+                const th = document.createElement("th");
+                th.textContent = key;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            
+            // Create body rows
+            data.forEach(row => {
+                const tr = document.createElement("tr");
+                Object.values(row).forEach(value => {
+                    const td = document.createElement("td");
+                    td.textContent = value;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            container.appendChild(table);
+            tableList.appendChild(container);
+        })
+
+    }
+    
+    function closeDialog(dialogName){
+        document.getElementById(dialogName).close()
+    }
+
+    document.getElementById("weather_dashboard").classList.add("active");
+    // Show first tab by default
+</script>
+
+</body>
+</html>
