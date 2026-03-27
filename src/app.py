@@ -201,8 +201,6 @@ def get_measurements_from_stations(self: Api):
 def get_latest(self):
     con = db.connect_to_database()
     latest_measurements = db.get_latest_measurement(con)
-    converted_data = convert_tuples_to_lists(latest_measurements)
-    print(latest_measurements)
     db.close_connection(con)
     return latest_measurements
 
@@ -241,14 +239,6 @@ station_type_date_parser.add_argument(
     location="args",
     help="End date in format YYYY-MM-DD"
 )
-
-def convert_tuples_to_lists(data):
-    if isinstance(data, dict):
-        return {k: convert_tuples_to_lists(v) for k, v in data.items()}
-    elif isinstance(data, tuple):
-        return list(data)
-    else:
-        return data
 
 def create_station_api_call():
     stations = "Stations"

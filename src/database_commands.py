@@ -225,23 +225,6 @@ def get_column_data_type(con, table, column):
             print(f"Error getting column datatype: {e}")
     else:
         print("No connection to database")
-    
-def get_datatypes(con,table,columns): 
-    """Get datatypes for all columns in a table
-        Returns dict of columns with their datatype
-    """
-    if con is not None:
-        try:
-            datatypes = {}
-            for column in columns:
-                datatypes[column] = get_column_data_type(con,table,column)
-        except Exception as e:
-            print(f"Error getting datatypes: {e}")
-            return 0
-    else:
-        print("No connection to database")
-        return 0
-    return datatypes
 
 def get_primary_key(con, table):
     """Gets the primary key column (name) of a table
@@ -259,40 +242,6 @@ def get_primary_key(con, table):
         print("No connection to database")
         return 0
     return 0
- 
-def get_connected_tables(con, parent_table): # Find tables that have a foreign key referencing the parent_table
-    if con is not None:
-        try:
-            schema = all_columns(con)
-            reference = []
-            for table, columns in schema.items():
-                cursor = get_cursor(con)
-                cursor.execute(f"PRAGMA foreign_key_list({table})")
-                for row in cursor.fetchall():
-                    if row[2] == parent_table:
-                        reference.append((table, row[3], row[4])) # row[3] is the column in the child table that references the parent table, row[4] is the column in the parent table that is referenced
-        except Exception as e:
-            print(f"Error getting connected tables: {e}")
-            return 0
-    else:
-        print("No connection to database")
-        return 0
-    return reference
- 
-def get_mathing_ids(con, table, col, val):
-    if con is not None:
-        try:
-            cursor = get_cursor(con)
-            pk_column = get_primary_key(con, table)
-            cursor.execute(f"SELECT {pk_column} FROM {table} WHERE {col} = ?", (val,))
-            ids = [row[0] for row in cursor.fetchall()]
-        except Exception as e:
-            print(f"Error getting matching ids: {e}")
-            return 0
-    else:
-        print("No connection to database")
-        return 0
-    return ids, pk_column
 
 def get_uniques(data: list):
     uniques = []
